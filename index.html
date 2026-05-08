@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Лента Пэй — Чек-аут с Альфа-Банком</title>
+<meta name="description" content="Интерактивный прототип чек-аута Лента Пэй: оплата, BNPL, кредитный лимит и оформление карты через Альфа-Банк">
+
+<!-- Open Graph -->
+<meta property="og:title" content="Лента Пэй — Чек-аут с Альфа-Банком">
+<meta property="og:description" content="Интерактивный прототип чек-аута: оплата, рассрочка, кредитный лимит и оформление карты">
+<meta property="og:type" content="website">
+
+<!-- Favicon: yellow oval with blue Л -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><ellipse cx='16' cy='16' rx='15' ry='12' fill='%23FFCC00'/><text x='50%25' y='62%25' text-anchor='middle' fill='%23003C71' font-size='14' font-weight='800' font-family='Arial'>Л</text></svg>">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:#F5F5F5;color:#003C71;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter','SF Pro Text','Segoe UI',-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;border:none;background:none;color:inherit;cursor:pointer}
+button:focus{outline:none}
+input{font-family:inherit}
+input:focus{outline:none}
+::selection{background:#FFCC00;color:#003C71}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:#B8D0E6;border-radius:3px}
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+// ── Lenta brand palette ────────────────────────────────────────────────────────
+const C = {
+  yellow: "#FFCC00",
+  yellowDark: "#E6B800",
+  yellowSoft: "#FFF4C2",
+  yellowLight: "#FFFBEA",
+  blue: "#003C71",
+  blueDark: "#002347",
+  blueLight: "#E6EEF5",
+  blueMid: "#B8D0E6",
+  alfaRed: "#EF3124",
+  bg: "#F5F5F5",
+  card: "#FFFFFF",
+  text: "#003C71",
+  text2: "#1A1A1A",
+  sub: "#6B7785",
+  border: "#E5E8EB",
+  green: "#00A650",
+  greenBg: "#E6F7EE",
+};
+
+function LentaLogo({ size = 32 }) {
+  const w = size * 2.4, h = size;
+  return (
+    <svg width={w} height={h} viewBox="0 0 96 40" style={{ display: "block" }}>
+      <ellipse cx="48" cy="20" rx="46" ry="18" fill={C.yellow}/>
+      <text x="48" y="27" textAnchor="middle" fontSize="18" fontWeight="800" fill={C.blue} fontFamily="Inter, sans-serif" letterSpacing="0.3">Лента</text>
+    </svg>
+  );
+}
+
+function LentaCardSvg({ width = 200 }) {
+  const h = Math.round(width * 0.6);
+  return (
+    <svg width={width} height={h} viewBox="0 0 200 120" style={{ borderRadius: 14, display: "block" }}>
+      <defs>
+        <linearGradient id="lcBg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#FFD93B"/>
+          <stop offset="100%" stopColor="#FFB800"/>
+        </linearGradient>
+      </defs>
+      <rect width="200" height="120" rx="14" fill="url(#lcBg)"/>
+      <ellipse cx="180" cy="-10" rx="70" ry="45" fill={C.blue} opacity="0.07"/>
+      <circle cx="20" cy="115" r="40" fill={C.blue} opacity="0.05"/>
+      <rect x="14" y="42" width="28" height="22" rx="4" fill={C.blue} opacity="0.85"/>
+      <line x1="14" y1="53" x2="42" y2="53" stroke={C.yellow} strokeWidth="1" opacity="0.7"/>
+      <line x1="28" y1="42" x2="28" y2="64" stroke={C.yellow} strokeWidth="1" opacity="0.7"/>
+      <text x="14" y="84" fill={C.blue} fontSize="14" fontWeight="800" fontFamily="Inter, sans-serif" letterSpacing="0.5">ЛЕНТА</text>
+      <text x="14" y="98" fill={C.blue} fontSize="9" fontWeight="600" fontFamily="Inter, sans-serif" opacity="0.8" letterSpacing="2">ПЭЙ</text>
+      <text x="14" y="113" fill={C.blue} fontSize="10" fontFamily="monospace" fontWeight="700" letterSpacing="1.5">*7741</text>
+      <rect x="148" y="14" width="38" height="18" rx="4" fill={C.blue}/>
+      <text x="167" y="27" fill={C.yellow} fontSize="9" fontWeight="800" textAnchor="middle" fontFamily="Inter, sans-serif">МИР</text>
+      <text x="148" y="113" fill={C.blue} fontSize="9" fontFamily="monospace" fontWeight="600" opacity="0.75">09/28</text>
+    </svg>
+  );
+}
+
+function AlfaCardSvg({ width = 60, last = "1234" }) {
+  const h = Math.round(width * 0.6);
+  return (
+    <svg width={width} height={h} viewBox="0 0 200 120" style={{ borderRadius: 8, display: "block" }}>
+      <rect width="200" height="120" rx="8" fill="#0A0A0A"/>
+      <rect x="148" y="14" width="38" height="22" rx="4" fill={C.alfaRed} />
+      <text x="167" y="29" fill="white" fontSize="12" fontWeight="800" textAnchor="middle">A</text>
+      <text x="14" y="108" fill="rgba(255,255,255,0.85)" fontSize="11" fontFamily="monospace" letterSpacing="2">*{last}</text>
+    </svg>
+  );
+}
+
+function QrCodeSvg({ size = 160, highlight }) {
+  const cells = [
+    [1,1,1,1,1,1,1,0,0,1,1,0,1,0,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,1,0,1,0,0,1,0,0,1,0,0,0,0,0,1],
+    [1,0,1,1,1,0,1,0,0,1,1,0,0,0,1,0,1,1,1,0,1],
+    [1,0,1,1,1,0,1,0,1,1,0,0,1,0,1,0,1,1,1,0,1],
+    [1,0,1,1,1,0,1,0,0,0,1,1,0,0,1,0,1,1,1,0,1],
+    [1,0,0,0,0,0,1,0,1,0,0,1,1,0,1,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,0,1,0,1,0,1,0,1,1,1,1,1,1,1],
+    [0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0],
+    [0,1,1,0,1,1,1,0,1,0,0,1,1,1,1,0,1,0,1,1,0],
+    [1,0,0,1,0,0,0,1,0,1,1,0,0,0,0,1,0,1,0,0,1],
+    [0,1,1,1,1,0,1,0,1,0,1,1,1,0,1,0,1,1,1,0,1],
+    [1,0,0,1,0,1,0,1,0,1,0,0,0,1,0,1,0,0,1,1,0],
+    [1,1,0,0,1,0,1,0,1,0,1,1,0,0,1,1,1,0,1,0,1],
+    [0,0,1,0,0,1,0,1,0,1,1,0,1,0,0,1,0,1,0,0,0],
+    [1,1,1,1,1,1,1,0,1,0,0,1,1,0,1,0,1,0,0,1,0],
+    [1,0,0,0,0,0,1,0,0,1,1,0,0,1,0,1,1,0,1,0,1],
+    [1,0,1,1,1,0,1,1,0,0,1,1,0,0,1,0,0,1,0,1,1],
+    [1,0,1,1,1,0,1,0,1,1,0,0,1,1,0,1,1,0,1,1,0],
+    [1,0,1,1,1,0,1,0,0,1,1,0,1,0,1,0,1,1,0,0,1],
+    [1,0,0,0,0,0,1,1,1,0,0,1,0,1,0,1,1,0,1,0,0],
+    [1,1,1,1,1,1,1,0,0,1,1,0,1,0,1,0,0,1,1,1,0],
+  ];
+  const n = cells.length;
+  const cell = size / n;
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      <rect width={size} height={size} fill="white" rx="10"/>
+      {highlight && <rect width={size} height={size} rx="10" fill={C.yellowLight}/>}
+      {cells.map((row, r) => row.map((v, c) =>
+        v ? <rect key={`${r}-${c}`} x={c*cell} y={r*cell} width={cell} height={cell} fill={highlight ? C.blue : "#1A1A1A"}/> : null
+      ))}
+      {highlight && (
+        <>
+          <rect width={size} height={size} rx="10" fill="none" stroke={C.blue} strokeWidth="2.5"/>
+          <rect x={size/2-22} y={size/2-22} width={44} height={44} rx={10} fill={C.yellow}/>
+          <text x={size/2} y={size/2+5} textAnchor="middle" fontSize="11" fontWeight="800" fill={C.blue} fontFamily="Inter, sans-serif">ЛЕНТА</text>
+        </>
+      )}
+    </svg>
+  );
+}
+
+function CheckIcon({ size = 16, color = "#fff" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <path d="M5 12l5 5 9-9" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+function ChevronRight({ size = 16, color = C.sub }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <path d="M9 6l6 6-6 6" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+    </svg>
+  );
+}
+function InfoIcon({ size = 14, color = C.sub }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="9" stroke={color} strokeWidth="1.5"/>
+      <path d="M12 8v1M12 12v4" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
+const Divider = ({ mx = 0 }) => <div style={{ height: 1, background: C.border, margin: `0 ${mx}px` }}/>;
+
+function PrimaryBtn({ label, sublabel, onClick, loading, secondary, disabled }) {
+  return (
+    <button onClick={onClick} disabled={loading || disabled} style={{
+      width: "100%", padding: "15px 20px", border: "none",
+      cursor: disabled ? "default" : "pointer", borderRadius: 14,
+      background: disabled ? "#E0E0E0" : secondary ? "#fff" : loading ? C.yellowDark : C.yellow,
+      color: disabled ? C.sub : C.blue,
+      fontSize: 15, fontWeight: 800,
+      display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+      transition: "all .18s", fontFamily: "inherit", letterSpacing: "0.2px",
+      boxShadow: secondary ? `inset 0 0 0 1.5px ${C.blue}` : disabled ? "none" : "0 4px 12px rgba(255,204,0,0.35)",
+    }}>
+      {loading ? "Обработка…" : label}
+      {sublabel && !loading && <span style={{ fontWeight: 500, fontSize: 13, opacity: 0.75 }}>· {sublabel}</span>}
+    </button>
+  );
+}
+
+function RadioRow({ selected, onClick, icon, title, sub, badge, badgeYellow }) {
+  return (
+    <div onClick={onClick} style={{
+      display: "flex", alignItems: "center", gap: 13,
+      padding: "13px 16px", cursor: "pointer",
+      background: selected ? C.yellowLight : C.card,
+      borderLeft: `3px solid ${selected ? C.yellow : "transparent"}`,
+      transition: "all .15s"
+    }}>
+      <div style={{
+        width: 42, height: 42, borderRadius: 12,
+        background: selected ? C.yellow : C.bg,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        fontSize: 20, flexShrink: 0
+      }}>{icon}</div>
+      <div style={{ flex: 1 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: C.blue }}>{title}</div>
+        {sub && <div style={{ fontSize: 12, color: C.sub, marginTop: 1 }}>{sub}</div>}
+      </div>
+      {badge && (
+        <span style={{
+          fontSize: 11, fontWeight: 800, padding: "3px 8px", borderRadius: 8,
+          background: badgeYellow ? C.yellow : C.greenBg,
+          color: badgeYellow ? C.blue : C.green
+        }}>{badge}</span>
+      )}
+      <div style={{
+        width: 22, height: 22, borderRadius: "50%",
+        border: `2px solid ${selected ? C.blue : "#CCC"}`,
+        background: selected ? C.blue : "transparent",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        flexShrink: 0, transition: "all .15s"
+      }}>
+        {selected && <CheckIcon size={11}/>}
+      </div>
+    </div>
+  );
+}
+
+function StepBar({ step }) {
+  const steps = ["Товары", "Лента Клуб", "Оплата"];
+  return (
+    <div style={{ display: "flex", alignItems: "center", padding: "0 16px", marginBottom: 16 }}>
+      {steps.map((s, i) => (
+        <div key={i} style={{ display: "flex", alignItems: "center", flex: i < steps.length - 1 ? 1 : 0 }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+            <div style={{
+              width: 28, height: 28, borderRadius: "50%",
+              background: i < step ? C.blue : i === step ? C.yellow : C.border,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              color: i < step ? "#fff" : i === step ? C.blue : C.sub,
+              fontSize: 12, fontWeight: 800, transition: "all .3s",
+              boxShadow: i === step ? "0 0 0 4px rgba(255,204,0,0.25)" : "none"
+            }}>
+              {i < step ? <CheckIcon size={13}/> : i + 1}
+            </div>
+            <div style={{ fontSize: 10, color: i === step ? C.blue : C.sub, fontWeight: i === step ? 700 : 500, whiteSpace: "nowrap" }}>{s}</div>
+          </div>
+          {i < steps.length - 1 && (
+            <div style={{
+              flex: 1, height: 2, background: i < step ? C.blue : C.border,
+              marginBottom: 14, marginLeft: 4, marginRight: 4, transition: "all .3s"
+            }}/>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SuccessScreen({ amount, bonuses, method, onReset }) {
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 100, background: "#fff",
+      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+      animation: "fadeIn .35s ease"
+    }}>
+      <style>{`@keyframes pop{0%{transform:scale(.4);opacity:0}65%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}@keyframes fadeIn{from{opacity:0}to{opacity:1}}`}</style>
+      <div style={{
+        width: 96, height: 96, borderRadius: "50%", background: C.yellow,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        animation: "pop .5s ease .08s both", marginBottom: 24,
+        boxShadow: "0 8px 24px rgba(255,204,0,0.4)"
+      }}>
+        <CheckIcon size={48} color={C.blue}/>
+      </div>
+      <div style={{ fontSize: 28, fontWeight: 800, color: C.blue, marginBottom: 8, letterSpacing: "-0.5px" }}>Оплачено!</div>
+      <div style={{ fontSize: 22, fontWeight: 800, color: C.blue, marginBottom: 4 }}>{amount.toFixed(2)} ₽</div>
+      <div style={{ fontSize: 13, color: C.sub, marginBottom: 24 }}>{method}</div>
+      {bonuses > 0 && (
+        <div style={{
+          padding: "10px 20px", borderRadius: 14, background: C.yellow,
+          display: "flex", alignItems: "center", gap: 8
+        }}>
+          <span style={{ fontSize: 18 }}>⭐</span>
+          <span style={{ fontSize: 14, fontWeight: 800, color: C.blue }}>+{bonuses} баллов Лента Клуб</span>
+        </div>
+      )}
+      <button onClick={onReset} style={{
+        marginTop: 28, padding: "12px 32px", borderRadius: 14,
+        background: C.blueLight, border: "none", color: C.blue,
+        fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit"
+      }}>← Вернуться</button>
+    </div>
+  );
+}
+
+const FLOWS = {
+  n2b:      { route: ["consents", "phone", "otp", "form", "issued"], label: "N2B" },
+  existing: { route: ["consents", "phone", "otp", "select"],         label: "Действующий" },
+};
+
+function IssueHeader({ onClose, label }) {
+  return (
+    <div style={{
+      padding: "14px 16px 12px", borderBottom: `1px solid ${C.border}`,
+      background: "#fff", display: "flex", alignItems: "center", gap: 10
+    }}>
+      <button onClick={onClose} style={{
+        width: 32, height: 32, borderRadius: 10, border: "none",
+        background: C.bg, cursor: "pointer", fontSize: 16, fontFamily: "inherit",
+        color: C.blue, fontWeight: 700
+      }}>✕</button>
+      <div style={{ flex: 1 }}>
+        <div style={{ fontSize: 14, fontWeight: 800, color: C.blue }}>Оформление Лента Пэй</div>
+        <div style={{ fontSize: 11, color: C.sub, display: "flex", alignItems: "center", gap: 5, marginTop: 2 }}>
+          <span style={{
+            width: 14, height: 14, borderRadius: 3, background: C.alfaRed,
+            display: "inline-flex", alignItems: "center", justifyContent: "center",
+            fontSize: 9, fontWeight: 800, color: "#fff"
+          }}>A</span>
+          🔒 Защищено · обслуживает Альфа-Банк
+        </div>
+      </div>
+      <span style={{
+        fontSize: 10, fontWeight: 800, padding: "4px 9px", borderRadius: 6,
+        background: C.yellow, color: C.blue, letterSpacing: "0.3px"
+      }}>{label}</span>
+    </div>
+  );
+}
+
+function IssueProgress({ idx, total }) {
+  return (
+    <div style={{ display: "flex", gap: 4, padding: "10px 16px 4px" }}>
+      {Array.from({ length: total }).map((_, i) => (
+        <div key={i} style={{
+          flex: 1, height: 3, borderRadius: 2,
+          background: i <= idx ? C.yellow : C.border, transition: "background .3s"
+        }}/>
+      ))}
+    </div>
+  );
+}
+
+function ConsentsScreen({ onNext, clientType }) {
+  return (
+    <div style={{ padding: "20px 16px" }}>
+      <div style={{
+        width: 64, height: 64, borderRadius: 18, marginBottom: 14,
+        background: C.yellow, display: "flex", alignItems: "center", justifyContent: "center",
+        boxShadow: "0 4px 12px rgba(255,204,0,0.4)"
+      }}>
+        <span style={{ fontSize: 30 }}>🛒</span>
+      </div>
+      <div style={{ fontSize: 24, fontWeight: 800, lineHeight: 1.15, marginBottom: 8, color: C.blue, letterSpacing: "-0.5px" }}>
+        Платите Лента Пэй
+      </div>
+      <div style={{ fontSize: 13, color: C.sub, marginBottom: 16, lineHeight: 1.5 }}>
+        {clientType === "existing"
+          ? "Привяжите вашу карту Альфа-Банка и платите со скидкой"
+          : "Оформите карту за 30 секунд и сделайте заказ со скидкой"}
+      </div>
+      {[
+        { i: "💸", t: "Скидка до 35% на первую покупку" },
+        { i: "🎁", t: "Бесплатное обслуживание навсегда" },
+        { i: "⭐", t: "Кэшбэк до 30% и баллы Лента Клуб" },
+        { i: "⚡", t: clientType === "existing" ? "Привязка за 20 секунд" : "Без визита в отделение" },
+      ].map((b, i) => (
+        <div key={i} style={{
+          display: "flex", gap: 12, alignItems: "center",
+          padding: "12px 14px", marginBottom: 8,
+          background: C.blueLight, borderRadius: 12
+        }}>
+          <span style={{ fontSize: 20 }}>{b.i}</span>
+          <span style={{ fontSize: 13, fontWeight: 600, color: C.blue }}>{b.t}</span>
+        </div>
+      ))}
+      <PrimaryBtn label="Продолжить" onClick={onNext}/>
+      <div style={{ fontSize: 10, color: C.sub, marginTop: 12, lineHeight: 1.5 }}>
+        Нажимая «Продолжить», вы соглашаетесь с Памяткой ЭДС, СОПД и условиями обслуживания. Эмитент карты — АО «Альфа-Банк».
+      </div>
+    </div>
+  );
+}
+
+function PhoneScreen({ onNext }) {
+  const [phone, setPhone] = useState("+7 (999) 123-45-67");
+  return (
+    <div style={{ padding: "20px 16px" }}>
+      <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 8, color: C.blue, letterSpacing: "-0.4px" }}>Введите номер телефона</div>
+      <div style={{ fontSize: 13, color: C.sub, marginBottom: 24 }}>Мы отправим код подтверждения</div>
+      <div style={{
+        padding: "10px 14px", borderRadius: 14, background: "#fff",
+        border: `2px solid ${C.blue}`, marginBottom: 8
+      }}>
+        <div style={{ fontSize: 10, color: C.sub, textTransform: "uppercase", letterSpacing: 1, fontWeight: 700 }}>Номер телефона</div>
+        <input value={phone} onChange={e => setPhone(e.target.value)} style={{
+          width: "100%", border: "none", background: "transparent",
+          fontSize: 18, fontWeight: 700, color: C.blue, marginTop: 3,
+          outline: "none", fontFamily: "inherit"
+        }}/>
+      </div>
+      <div style={{ fontSize: 11, color: C.sub, marginBottom: 20, display: "flex", gap: 5, alignItems: "center" }}>
+        <InfoIcon size={12}/> Используется для подтверждения и связи
+      </div>
+      <PrimaryBtn label="Получить код" onClick={onNext}/>
+    </div>
+  );
+}
+
+function OtpScreen({ onNext }) {
+  const [code, setCode] = useState("");
+  const [timer, setTimer] = useState(25);
+
+  useEffect(() => {
+    if (timer > 0) {
+      const t = setTimeout(() => setTimer(timer - 1), 1000);
+      return () => clearTimeout(t);
+    }
+  }, [timer]);
+
+  useEffect(() => {
+    if (code.length < 4) {
+      const t = setTimeout(() => setCode(code + ((code.length + 4) % 10)), 350);
+      return () => clearTimeout(t);
+    } else {
+      const t = setTimeout(onNext, 600);
+      return () => clearTimeout(t);
+    }
+  }, [code]);
+
+  return (
+    <div style={{ padding: "20px 16px", textAlign: "center" }}>
+      <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 8, color: C.blue, letterSpacing: "-0.4px" }}>Введите код из СМС</div>
+      <div style={{ fontSize: 13, color: C.sub, marginBottom: 28 }}>Код отправлен на +7 999 123-45-67</div>
+      <div style={{ display: "flex", gap: 10, justifyContent: "center", marginBottom: 20 }}>
+        {[0,1,2,3].map(i => (
+          <div key={i} style={{
+            width: 54, height: 62, borderRadius: 12,
+            background: code.length > i ? C.yellow : "#fff",
+            border: `2px solid ${code.length === i ? C.blue : code.length > i ? C.yellow : C.border}`,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 26, fontWeight: 800, color: C.blue, transition: "all .15s"
+          }}>
+            {code[i] || (code.length === i ? <span style={{ opacity: 0.4, animation: "blink 1s infinite" }}>|</span> : "")}
+          </div>
+        ))}
+      </div>
+      <style>{`@keyframes blink{0%,50%{opacity:.4}51%,100%{opacity:0}}`}</style>
+      <div style={{ fontSize: 12, color: timer > 0 ? C.sub : C.blue, fontWeight: 700 }}>
+        {timer > 0 ? `Повторно через 0:${timer.toString().padStart(2, "0")}` : "Отправить код повторно"}
+      </div>
+    </div>
+  );
+}
+
+function FormScreen({ onNext }) {
+  const fields = [
+    { l: "Фамилия", v: "Иванов", note: "из данных Ленты" },
+    { l: "Имя", v: "Алексей", note: "из данных Ленты" },
+    { l: "Отчество", v: "Сергеевич" },
+    { l: "Дата рождения", v: "15.03.1990" },
+  ];
+  return (
+    <div style={{ padding: "20px 16px" }}>
+      <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 8, color: C.blue, letterSpacing: "-0.4px" }}>Заполните заявку</div>
+      <div style={{ fontSize: 12, color: C.sub, marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
+        <span style={{ fontWeight: 600 }}>Шаг 1 из 2</span>
+        <div style={{ flex: 1, height: 3, background: C.border, borderRadius: 2 }}>
+          <div style={{ width: "50%", height: "100%", background: C.yellow, borderRadius: 2 }}/>
+        </div>
+      </div>
+      {fields.map((f, i) => (
+        <div key={i} style={{
+          padding: "10px 14px", marginBottom: 8, background: "#fff",
+          border: `1px solid ${C.border}`, borderRadius: 12, position: "relative"
+        }}>
+          <div style={{ fontSize: 10, color: C.sub, textTransform: "uppercase", letterSpacing: 1, fontWeight: 700 }}>{f.l}</div>
+          <div style={{ fontSize: 14, fontWeight: 700, marginTop: 2, color: C.blue }}>{f.v}</div>
+          {f.note && (
+            <span style={{
+              position: "absolute", top: 10, right: 12,
+              fontSize: 9, fontWeight: 800, color: C.blue,
+              background: C.yellow, padding: "2px 7px", borderRadius: 5
+            }}>✓ {f.note}</span>
+          )}
+        </div>
+      ))}
+      <div style={{
+        display: "flex", justifyContent: "space-between", alignItems: "center",
+        padding: "10px 14px", marginBottom: 16,
+        background: "#fff", border: `1px solid ${C.border}`, borderRadius: 12
+      }}>
+        <span style={{ fontSize: 12, color: C.sub }}>Гражданин РФ</span>
+        <span style={{ fontSize: 13, fontWeight: 700, color: C.blue, display: "flex", alignItems: "center", gap: 5 }}>
+          Да <CheckIcon size={12} color={C.blue}/>
+        </span>
+      </div>
+      <PrimaryBtn label="Продолжить" onClick={onNext}/>
+    </div>
+  );
+}
+
+function IssuedScreen({ onNext }) {
+  return (
+    <div style={{ padding: "24px 16px", textAlign: "center" }}>
+      <div style={{
+        width: 72, height: 72, borderRadius: "50%", background: C.yellow,
+        margin: "0 auto 16px", display: "flex", alignItems: "center", justifyContent: "center",
+        animation: "pop .4s ease", boxShadow: "0 6px 18px rgba(255,204,0,0.4)"
+      }}>
+        <CheckIcon size={34} color={C.blue}/>
+      </div>
+      <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 8, color: C.blue, letterSpacing: "-0.4px" }}>Лента Пэй выпущена!</div>
+      <div style={{ fontSize: 13, color: C.sub, marginBottom: 20, lineHeight: 1.5 }}>
+        Карта готова к оплате. Все данные переданы на чек-аут автоматически.
+      </div>
+      <div style={{
+        padding: 14, background: C.blueLight, borderRadius: 16, marginBottom: 16,
+        display: "flex", alignItems: "center", gap: 12
+      }}>
+        <LentaCardSvg width={92}/>
+        <div style={{ textAlign: "left" }}>
+          <div style={{ fontSize: 14, fontWeight: 800, color: C.blue }}>Лента Пэй</div>
+          <div style={{ fontSize: 11, color: C.sub, marginTop: 2 }}>*7741 · МИР</div>
+          <div style={{
+            fontSize: 10, fontWeight: 800, color: C.blue, marginTop: 5,
+            display: "inline-block", padding: "3px 8px",
+            background: C.yellow, borderRadius: 5, letterSpacing: "0.3px"
+          }}>✓ АКТИВНА</div>
+        </div>
+      </div>
+      <PrimaryBtn label="Перейти к оплате" onClick={onNext}/>
+    </div>
+  );
+}
+
+function SelectAlfaCardScreen({ onNext }) {
+  const [sel, setSel] = useState(0);
+  const cards = [
+    { last: "8421", name: "Альфа-Карта", bal: "47 200 ₽", type: "Дебетовая · МИР" },
+    { last: "3309", name: "Альфа Только Польза", bal: "12 100 ₽", type: "Кредитная · Visa" },
+    { last: "6017", name: "Альфа Премиум", bal: "1 240 ₽", type: "Дебетовая · МС" },
+  ];
+  return (
+    <div style={{ padding: "20px 16px" }}>
+      <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 8, color: C.blue, letterSpacing: "-0.4px" }}>Выберите карту</div>
+      <div style={{ fontSize: 13, color: C.sub, marginBottom: 16 }}>Привяжем её к Лента Пэй для покупок со скидкой</div>
+      {cards.map((c, i) => (
+        <div key={i} onClick={() => setSel(i)} style={{
+          display: "flex", alignItems: "center", gap: 12,
+          padding: "10px 12px", marginBottom: 8, cursor: "pointer",
+          background: sel === i ? C.yellowLight : "#fff", borderRadius: 12,
+          border: `2px solid ${sel === i ? C.yellow : C.border}`, transition: "all .15s"
+        }}>
+          <AlfaCardSvg width={56} last={c.last}/>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: C.blue }}>{c.name}</div>
+            <div style={{ fontSize: 11, color: C.sub, marginTop: 1 }}>*{c.last} · {c.bal}</div>
+            <div style={{ fontSize: 10, color: C.sub, marginTop: 1 }}>{c.type}</div>
+          </div>
+          <div style={{
+            width: 22, height: 22, borderRadius: "50%",
+            border: `2px solid ${sel === i ? C.blue : "#CCC"}`,
+            background: sel === i ? C.blue : "transparent",
+            display: "flex", alignItems: "center", justifyContent: "center"
+          }}>
+            {sel === i && <CheckIcon size={11}/>}
+          </div>
+        </div>
+      ))}
+      <div style={{ marginTop: 14 }}>
+        <PrimaryBtn label="Привязать к Лента Пэй" onClick={onNext}/>
+      </div>
+    </div>
+  );
+}
+
+function CardIssuanceModal({ clientType, onClose, onComplete }) {
+  const [idx, setIdx] = useState(0);
+  const flow = FLOWS[clientType] || FLOWS.n2b;
+  const route = flow.route;
+  const cur = route[idx];
+
+  const next = () => { if (idx < route.length - 1) setIdx(idx + 1); else onComplete(); };
+
+  const screens = {
+    consents: <ConsentsScreen onNext={next} clientType={clientType}/>,
+    phone:    <PhoneScreen onNext={next}/>,
+    otp:      <OtpScreen onNext={next}/>,
+    form:     <FormScreen onNext={next}/>,
+    issued:   <IssuedScreen onNext={next}/>,
+    select:   <SelectAlfaCardScreen onNext={next}/>,
+  };
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,60,113,0.55)",
+      display: "flex", alignItems: "flex-end", justifyContent: "center",
+      animation: "fadeIn .3s ease"
+    }}>
+      <style>{`@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}`}</style>
+      <div style={{
+        width: "100%", maxWidth: 400, background: "#fff",
+        borderRadius: "22px 22px 0 0", maxHeight: "92vh", overflow: "hidden",
+        animation: "slideUp .35s cubic-bezier(.2,.8,.2,1)",
+        display: "flex", flexDirection: "column"
+      }}>
+        <IssueHeader onClose={onClose} label={flow.label}/>
+        <IssueProgress idx={idx} total={route.length}/>
+        <div style={{ flex: 1, overflow: "auto" }}>{screens[cur]}</div>
+      </div>
+    </div>
+  );
+}
+
+const ITEMS = [
+  { name: "Молоко Простоквашино 1л", price: 89.99, qty: 2, emoji: "🥛" },
+  { name: "Хлеб Бородинский", price: 54.50, qty: 1, emoji: "🍞" },
+  { name: "Яблоки Фуджи 1кг", price: 129.00, qty: 1, emoji: "🍎" },
+  { name: "Сыр Гауда 200г", price: 289.90, qty: 1, emoji: "🧀" },
+];
+const TOTAL_AMOUNT = ITEMS.reduce((s, i) => s + i.price * i.qty, 0);
+
+function Step1({ onNext }) {
+  return (
+    <div style={{ paddingBottom: 16 }}>
+      {ITEMS.map((item, i) => (
+        <div key={i}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 16px" }}>
+            <div style={{
+              width: 36, height: 36, borderRadius: 10, background: C.bg,
+              display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0
+            }}>{item.emoji}</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: C.blue }}>{item.name}</div>
+              <div style={{ fontSize: 12, color: C.sub, marginTop: 1 }}>{item.qty} × {item.price.toFixed(2)} ₽</div>
+            </div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: C.blue }}>{(item.price * item.qty).toFixed(2)} ₽</div>
+          </div>
+          {i < ITEMS.length - 1 && <Divider mx={16}/>}
+        </div>
+      ))}
+      <Divider/>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px 16px" }}>
+        <span style={{ fontSize: 16, fontWeight: 800, color: C.blue }}>Итого</span>
+        <span style={{ fontSize: 24, fontWeight: 800, color: C.blue }}>{TOTAL_AMOUNT.toFixed(2)} ₽</span>
+      </div>
+      <Divider/>
+      <div style={{ padding: "14px 16px 0" }}>
+        <div style={{
+          padding: "14px 16px", borderRadius: 16, marginBottom: 12, cursor: "pointer",
+          background: C.yellow, display: "flex", alignItems: "center", gap: 12,
+          boxShadow: "0 4px 12px rgba(255,204,0,0.25)"
+        }} onClick={onNext}>
+          <div style={{
+            width: 44, height: 44, borderRadius: 12, background: C.blue,
+            display: "flex", alignItems: "center", justifyContent: "center"
+          }}>
+            <span style={{ fontSize: 22 }}>⭐</span>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 14, fontWeight: 800, color: C.blue }}>Карта Лента Клуб</div>
+            <div style={{ fontSize: 12, color: C.blue, opacity: 0.7, marginTop: 2 }}>Покажите QR для начисления баллов и скидок</div>
+          </div>
+          <ChevronRight size={20} color={C.blue}/>
+        </div>
+        <PrimaryBtn label="Показать карту Лента Клуб" onClick={onNext}/>
+      </div>
+    </div>
+  );
+}
+
+function Step2({ onNext }) {
+  const [scanned, setScanned] = useState(false);
+  const [scanning, setScanning] = useState(false);
+
+  const handleScan = () => {
+    if (scanned) return;
+    setScanning(true);
+    setTimeout(() => { setScanning(false); setScanned(true); }, 1800);
+  };
+
+  return (
+    <div style={{ paddingBottom: 16 }}>
+      <div style={{ padding: "14px 16px 12px", display: "flex", alignItems: "center", gap: 14 }}>
+        <LentaCardSvg width={88}/>
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 800, color: C.blue }}>Лента Пэй</div>
+          <div style={{ fontSize: 12, color: C.sub, marginTop: 2 }}>*7741 · Баланс 312.50 ₽</div>
+          <div style={{ fontSize: 12, marginTop: 3, display: "flex", alignItems: "center", gap: 5 }}>
+            <span style={{ color: C.blue, fontWeight: 700 }}>⭐ 1 240 баллов</span>
+            <span style={{ color: C.sub }}>= 124 ₽</span>
+          </div>
+        </div>
+      </div>
+      <Divider/>
+      <div style={{ padding: "18px 16px 10px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <div style={{
+          padding: 14, background: scanned ? C.yellow : "#fff",
+          borderRadius: 20, position: "relative",
+          border: `2px solid ${scanned ? C.blue : scanning ? C.yellow : C.border}`,
+          boxShadow: "0 4px 24px rgba(0,60,113,0.07)", transition: "all .3s", cursor: "pointer"
+        }} onClick={handleScan}>
+          <QrCodeSvg size={172} highlight={!scanned}/>
+          {scanning && !scanned && (
+            <div style={{ position: "absolute", inset: 14, borderRadius: 12, overflow: "hidden", pointerEvents: "none" }}>
+              <div style={{
+                position: "absolute", left: 0, right: 0, height: 2.5,
+                background: `linear-gradient(90deg, transparent, ${C.blue}, transparent)`,
+                animation: "laser 1.4s ease-in-out infinite"
+              }}/>
+              <style>{`@keyframes laser{0%,100%{top:10%}50%{top:88%}}`}</style>
+            </div>
+          )}
+          {scanned && (
+            <div style={{
+              position: "absolute", inset: 0, borderRadius: 18,
+              background: "rgba(255,204,0,0.2)",
+              display: "flex", alignItems: "center", justifyContent: "center"
+            }}>
+              <div style={{
+                width: 62, height: 62, borderRadius: "50%", background: C.blue,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                animation: "pop .4s ease"
+              }}>
+                <CheckIcon size={32} color={C.yellow}/>
+              </div>
+            </div>
+          )}
+        </div>
+        <div style={{ marginTop: 14, textAlign: "center" }}>
+          {scanned
+            ? <div style={{ color: C.blue, fontWeight: 800, fontSize: 15 }}>✓ Карта распознана</div>
+            : scanning
+            ? <div style={{ color: C.blue, fontSize: 14, fontWeight: 600 }}>Сканирование…</div>
+            : <>
+                <div style={{ fontSize: 14, fontWeight: 700, color: C.blue, marginBottom: 4 }}>Покажите QR кассиру</div>
+                <div style={{ fontSize: 12, color: C.sub }}>или нажмите для симуляции сканирования</div>
+              </>
+          }
+        </div>
+        <div style={{ marginTop: 8 }}>
+          <span style={{ fontSize: 12, color: C.sub, letterSpacing: 1.5 }}>4830 0011 8274 6619</span>
+        </div>
+      </div>
+      {scanned && (
+        <div style={{
+          margin: "0 16px 12px", padding: "12px 14px", borderRadius: 14,
+          background: C.yellow, display: "flex", alignItems: "center", gap: 10
+        }}>
+          <span style={{ fontSize: 20 }}>⭐</span>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 800, color: C.blue }}>+{Math.floor(TOTAL_AMOUNT * 0.05)} баллов Лента Клуб</div>
+            <div style={{ fontSize: 11, color: C.blue, opacity: 0.7, marginTop: 1 }}>Начислим после оплаты</div>
+          </div>
+        </div>
+      )}
+      <div style={{
+        margin: "0 16px 14px", padding: "10px 14px", borderRadius: 12,
+        background: C.blueLight, border: `1px solid ${C.blueMid}`,
+        display: "flex", gap: 8, alignItems: "flex-start"
+      }}>
+        <span style={{ fontSize: 15 }}>⚠️</span>
+        <span style={{ fontSize: 12, color: C.blue, lineHeight: 1.5 }}>
+          Не передавайте QR третьим лицам — код даёт доступ к вашим баллам и скидкам
+        </span>
+      </div>
+      <div style={{ padding: "0 16px" }}>
+        <PrimaryBtn label={scanned ? "Перейти к оплате →" : "Пропустить"} onClick={onNext} secondary={!scanned}/>
+      </div>
+    </div>
+  );
+}
+
+const BNPL_PLANS = [
+  { parts: 2, label: "2 части", per: "Сейчас и через 2 нед.", badge: "Без %" },
+  { parts: 4, label: "4 части", per: "Каждые 2 недели",       badge: "Без %" },
+];
+const REV_PLANS = [
+  { months: 6,  rate: 0,   label: "6 мес",  badge: "Без %"    },
+  { months: 12, rate: 5.9, label: "12 мес", badge: "5.9%/мес" },
+  { months: 24, rate: 9.9, label: "24 мес", badge: "9.9%/мес" },
+];
+const CREDIT_LIMIT = 60000;
+
+function Step3({ loyaltyScanned, hasLentaPay, onPay, onIssue }) {
+  const [method, setMethod] = useState(hasLentaPay ? "lenta" : "card");
+  const [bnplPlan, setBnplPlan] = useState(1);
+  const [revPlan, setRevPlan] = useState(0);
+  const [usePoints, setUsePoints] = useState(true);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => { if (hasLentaPay) setMethod("lenta"); }, [hasLentaPay]);
+
+  const pointsVal = loyaltyScanned && usePoints ? 12.40 : 0;
+  const finalAmount = TOTAL_AMOUNT - pointsVal;
+  const rev = REV_PLANS[revPlan];
+  const revMonthly = Math.ceil(finalAmount / rev.months * (1 + rev.rate / 100));
+
+  const pay = () => {
+    setLoading(true);
+    const labels = {
+      lenta:     "Лента Пэй · карта *7741",
+      bnpl:      `Рассрочка ${BNPL_PLANS[bnplPlan].label}`,
+      revolving: `Кредитный лимит ${REV_PLANS[revPlan].label}`,
+      card:      "Банковская карта",
+    };
+    setTimeout(() => { setLoading(false); onPay(finalAmount, loyaltyScanned ? Math.floor(finalAmount * 0.05) : 0, labels[method]); }, 1800);
+  };
+
+  return (
+    <div style={{ paddingBottom: 16 }}>
+      <div style={{
+        margin: "12px 16px 0", padding: "14px 16px", borderRadius: 16,
+        background: loyaltyScanned ? C.yellow : C.blueLight,
+      }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span style={{ fontSize: 13, color: C.blue, fontWeight: 600, opacity: 0.75 }}>К оплате</span>
+          <span style={{ fontSize: 24, fontWeight: 800, color: C.blue }}>{finalAmount.toFixed(2)} ₽</span>
+        </div>
+        {loyaltyScanned && (
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ fontSize: 14 }}>⭐</span>
+              <span style={{ fontSize: 12, color: C.blue, fontWeight: 600 }}>Списать 124 балла Лента Клуб</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ fontSize: 12, color: C.blue, fontWeight: 700 }}>–12.40 ₽</span>
+              <div onClick={() => setUsePoints(!usePoints)} style={{
+                width: 36, height: 22, borderRadius: 11, cursor: "pointer",
+                background: usePoints ? C.blue : "rgba(0,60,113,0.25)", position: "relative", transition: "background .2s"
+              }}>
+                <div style={{
+                  width: 16, height: 16, borderRadius: "50%", background: "#fff",
+                  position: "absolute", top: 3, left: usePoints ? 17 : 3,
+                  transition: "left .2s", boxShadow: "0 1px 3px rgba(0,0,0,0.2)"
+                }}/>
+              </div>
+            </div>
+          </div>
+        )}
+        {loyaltyScanned
+          ? <div style={{ fontSize: 11, color: C.blue, fontWeight: 700, marginTop: 6 }}>+{Math.floor(finalAmount * 0.05)} ⭐ начислим после покупки</div>
+          : <div style={{ fontSize: 12, color: C.sub, marginTop: 4 }}>ℹ️ Карта Лента Клуб не отсканирована — баллы не начислятся</div>
+        }
+      </div>
+      <div style={{ padding: "14px 16px 8px 19px", fontSize: 11, fontWeight: 800, color: C.sub, letterSpacing: 0.8, textTransform: "uppercase" }}>
+        Способ оплаты
+      </div>
+
+      {hasLentaPay ? (
+        <RadioRow selected={method === "lenta"} onClick={() => setMethod("lenta")}
+          icon="🛒" title="Лента Пэй" sub="Карта *7741 · МИР" badge="До 5% кешбэк" badgeYellow/>
+      ) : (
+        <div onClick={onIssue} style={{
+          margin: "0 16px 4px", padding: "16px 18px",
+          background: C.yellow, borderRadius: 16, cursor: "pointer", color: C.blue,
+          display: "flex", alignItems: "center", gap: 12,
+          boxShadow: "0 6px 18px rgba(255,204,0,0.4)",
+          position: "relative", overflow: "hidden"
+        }}>
+          <div style={{
+            position: "absolute", top: -20, right: -20, width: 120, height: 120,
+            borderRadius: "50%", background: C.blue, opacity: 0.06
+          }}/>
+          <div style={{
+            width: 46, height: 46, borderRadius: 13, background: C.blue,
+            display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+            position: "relative"
+          }}>
+            <span style={{ fontSize: 22 }}>⚡</span>
+          </div>
+          <div style={{ flex: 1, position: "relative" }}>
+            <div style={{ fontSize: 15, fontWeight: 800, letterSpacing: "-0.2px" }}>Оформить Лента Пэй</div>
+            <div style={{ fontSize: 12, marginTop: 2, opacity: 0.75, fontWeight: 600 }}>За 30 секунд · скидка −35% сразу</div>
+          </div>
+          <div style={{
+            padding: "6px 11px", borderRadius: 8,
+            background: C.blue, color: C.yellow, fontSize: 11, fontWeight: 800,
+            position: "relative", letterSpacing: "0.3px"
+          }}>−35%</div>
+        </div>
+      )}
+      <Divider mx={16}/>
+
+      <RadioRow selected={method === "bnpl"} onClick={() => setMethod("bnpl")}
+        icon="📦" title="Рассрочка"
+        sub={method === "bnpl"
+          ? `${BNPL_PLANS[bnplPlan].label} · ${(finalAmount / BNPL_PLANS[bnplPlan].parts).toFixed(2)} ₽/платёж`
+          : "Оплата частями · без %"}
+        badge="Без %" badgeYellow/>
+      {method === "bnpl" && (
+        <div style={{ background: C.yellowLight, borderLeft: `3px solid ${C.yellow}`, padding: "0 16px 14px" }}>
+          <div style={{ display: "flex", gap: 8, paddingTop: 12 }}>
+            {BNPL_PLANS.map((p, i) => (
+              <button key={i} onClick={() => setBnplPlan(i)} style={{
+                flex: 1, padding: "11px 0", borderRadius: 12, border: "none", cursor: "pointer",
+                background: bnplPlan === i ? C.blue : "#fff",
+                color: bnplPlan === i ? "#fff" : C.blue,
+                fontFamily: "inherit", transition: "all .18s",
+                boxShadow: "0 1px 4px rgba(0,0,0,0.05)"
+              }}>
+                <div style={{ fontSize: 14, fontWeight: 800 }}>{p.label}</div>
+                <div style={{ fontSize: 11, marginTop: 2, opacity: 0.75, fontWeight: 600 }}>{(finalAmount / p.parts).toFixed(2)} ₽/раз</div>
+              </button>
+            ))}
+          </div>
+          <div style={{
+            marginTop: 10, padding: "9px 12px", borderRadius: 10, background: "#fff",
+            display: "flex", gap: 8, alignItems: "center"
+          }}>
+            <InfoIcon size={13} color={C.blue}/>
+            <span style={{ fontSize: 12, color: C.blue, fontWeight: 500 }}>Первый платёж сегодня. Без процентов и скрытых комиссий.</span>
+          </div>
+        </div>
+      )}
+      <Divider mx={16}/>
+
+      <RadioRow selected={method === "revolving"} onClick={() => setMethod("revolving")}
+        icon="♻️" title="Кредитный лимит"
+        sub={`Доступно ${CREDIT_LIMIT.toLocaleString("ru-RU")} ₽ · возобновляемый`}
+        badge="Одобрен" badgeYellow/>
+      {method === "revolving" && (
+        <div style={{ background: C.yellowLight, borderLeft: `3px solid ${C.yellow}`, padding: "0 16px 14px" }}>
+          <div style={{ display: "flex", gap: 8, paddingTop: 12, overflowX: "auto" }}>
+            {REV_PLANS.map((p, i) => (
+              <button key={i} onClick={() => setRevPlan(i)} style={{
+                flexShrink: 0, padding: "10px 14px", borderRadius: 12, border: "none", cursor: "pointer",
+                background: revPlan === i ? C.blue : "#fff",
+                color: revPlan === i ? "#fff" : C.blue,
+                fontFamily: "inherit", transition: "all .18s",
+                boxShadow: "0 1px 4px rgba(0,0,0,0.05)"
+              }}>
+                <div style={{ fontSize: 13, fontWeight: 800 }}>{p.label}</div>
+                <div style={{ fontSize: 11, marginTop: 1, opacity: 0.75, fontWeight: 600 }}>{p.badge}</div>
+              </button>
+            ))}
+          </div>
+          <div style={{
+            marginTop: 10, padding: "13px 14px", borderRadius: 14, background: "#fff",
+            boxShadow: "0 1px 6px rgba(0,0,0,0.05)"
+          }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+              <div>
+                <div style={{ fontSize: 11, color: C.sub, fontWeight: 600 }}>Сумма</div>
+                <div style={{ fontSize: 17, fontWeight: 800, color: C.blue }}>{finalAmount.toFixed(2)} ₽</div>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <div style={{ fontSize: 11, color: C.sub, fontWeight: 600 }}>В месяц</div>
+                <div style={{ fontSize: 17, fontWeight: 800, color: C.blue }}>~{revMonthly} ₽</div>
+              </div>
+            </div>
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
+                <span style={{ fontSize: 11, color: C.sub }}>Лимит {CREDIT_LIMIT.toLocaleString("ru-RU")} ₽</span>
+                <span style={{ fontSize: 11, color: C.blue, fontWeight: 700 }}>
+                  Остаток {(CREDIT_LIMIT - finalAmount).toLocaleString("ru-RU", { maximumFractionDigits: 0 })} ₽
+                </span>
+              </div>
+              <div style={{ height: 5, borderRadius: 3, background: C.bg }}>
+                <div style={{
+                  height: "100%", borderRadius: 3, background: C.yellow,
+                  width: `${(finalAmount / CREDIT_LIMIT * 100).toFixed(1)}%`
+                }}/>
+              </div>
+            </div>
+            <div style={{ marginTop: 8, fontSize: 11, color: C.sub }}>♻️ Погашенные средства снова доступны</div>
+          </div>
+        </div>
+      )}
+      <Divider mx={16}/>
+
+      <RadioRow selected={method === "card"} onClick={() => setMethod("card")}
+        icon="💳" title="Банковская карта" sub="Visa, Mastercard, МИР"/>
+
+      <div style={{ padding: "16px 16px 0" }}>
+        <PrimaryBtn label={
+          method === "bnpl"
+            ? `${BNPL_PLANS[bnplPlan].parts} × ${(finalAmount / BNPL_PLANS[bnplPlan].parts).toFixed(2)} ₽`
+            : method === "revolving"
+            ? `~${revMonthly} ₽/мес · ${rev.months} мес`
+            : `Оплатить ${finalAmount.toFixed(2)} ₽`
+        } onClick={pay} loading={loading}/>
+      </div>
+      <div style={{ textAlign: "center", marginTop: 12, fontSize: 11, color: C.sub, display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
+        🔒 Защищено · PCI DSS · Альфа-Банк
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [mode, setMode] = useState("offline");
+  const [step, setStep] = useState(0);
+  const [loyaltyScanned, setLoyaltyScanned] = useState(false);
+  const [success, setSuccess] = useState(null);
+  const [clientType, setClientType] = useState("has_lenta");
+  const [issuanceOpen, setIssuanceOpen] = useState(false);
+
+  const reset = () => { setSuccess(null); setStep(0); setLoyaltyScanned(false); };
+  const hasLentaPay = clientType === "has_lenta";
+
+  if (success) return <SuccessScreen amount={success.amount} bonuses={success.bonuses} method={success.method} onReset={reset}/>;
+
+  const stepTitles = ["Ваши покупки", "Карта Лента Клуб", "Выберите оплату"];
+  const segments = [
+    { k: "has_lenta", l: "С Лента Пэй" },
+    { k: "n2b",       l: "N2B" },
+    { k: "existing",  l: "Действующий" },
+  ];
+
+  return (
+    <div style={{
+      minHeight: "100vh", background: C.bg,
+      fontFamily: "'Inter','SF Pro Text',-apple-system,BlinkMacSystemFont,sans-serif",
+      color: C.blue, display: "flex", flexDirection: "column", alignItems: "center"
+    }}>
+      <div style={{ width: "100%", maxWidth: 400 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", padding: "14px 20px 6px", fontSize: 12, fontWeight: 700, color: C.blue }}>
+          <span>9:41</span>
+          <div style={{ display: "flex", gap: 4 }}>▐▐▐ WiFi 🔋</div>
+        </div>
+
+        <div style={{ padding: "0 12px 8px" }}>
+          <div style={{
+            background: C.blue, borderRadius: 14, padding: "10px 12px",
+            color: "#fff", boxShadow: "0 2px 10px rgba(0,60,113,0.18)"
+          }}>
+            <div style={{
+              fontSize: 9, fontWeight: 800, letterSpacing: 1.5,
+              textTransform: "uppercase", color: "rgba(255,255,255,0.55)", marginBottom: 7,
+              display: "flex", alignItems: "center", gap: 6
+            }}>
+              <span style={{
+                width: 14, height: 14, borderRadius: 3, background: C.alfaRed,
+                display: "inline-flex", alignItems: "center", justifyContent: "center",
+                fontSize: 9, fontWeight: 800
+              }}>A</span>
+              Демо CJM · Тип клиента
+            </div>
+            <div style={{ display: "flex", gap: 4 }}>
+              {segments.map(s => (
+                <button key={s.k} onClick={() => { setClientType(s.k); reset(); }} style={{
+                  flex: 1, padding: "8px 6px", borderRadius: 9, border: "none",
+                  background: clientType === s.k ? C.yellow : "rgba(255,255,255,0.08)",
+                  color: clientType === s.k ? C.blue : "rgba(255,255,255,0.85)",
+                  fontSize: 12, fontWeight: 700, cursor: "pointer",
+                  fontFamily: "inherit", transition: "all .18s", letterSpacing: "0.2px"
+                }}>{s.l}</button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", padding: "8px 16px 10px", gap: 12 }}>
+          <button onClick={() => step > 0 ? setStep(step - 1) : null} style={{
+            width: 36, height: 36, borderRadius: "50%", border: "none",
+            background: C.card, cursor: "pointer", fontSize: 18,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            boxShadow: "0 1px 4px rgba(0,0,0,0.06)", color: C.blue
+          }}>←</button>
+          <div style={{ flex: 1, fontSize: 17, fontWeight: 800, color: C.blue, letterSpacing: "-0.3px" }}>
+            {mode === "online" ? "Оплата" : stepTitles[step]}
+          </div>
+          <LentaLogo size={28}/>
+        </div>
+
+        <div style={{ padding: "0 16px 12px" }}>
+          <div style={{
+            display: "flex", gap: 4, background: C.card, borderRadius: 14, padding: 4,
+            boxShadow: "0 1px 4px rgba(0,0,0,0.05)"
+          }}>
+            {[{ k: "online", l: "🌐 Онлайн" }, { k: "offline", l: "🏪 Касса" }].map(m => (
+              <button key={m.k} onClick={() => { setMode(m.k); setStep(0); }} style={{
+                flex: 1, padding: "8px 0", borderRadius: 11, border: "none",
+                background: mode === m.k ? C.yellow : "transparent",
+                color: mode === m.k ? C.blue : C.sub,
+                fontSize: 13, fontWeight: 700, cursor: "pointer",
+                transition: "all .2s", fontFamily: "inherit"
+              }}>{m.l}</button>
+            ))}
+          </div>
+        </div>
+
+        <div style={{
+          background: C.card, borderRadius: 22, margin: "0 12px",
+          boxShadow: "0 2px 18px rgba(0,60,113,0.07)", overflow: "hidden"
+        }}>
+          <div style={{ height: 5, background: C.yellow }}/>
+          <div style={{
+            display: "flex", alignItems: "center", gap: 12, padding: "14px 16px 12px",
+            borderBottom: `1px solid ${C.border}`
+          }}>
+            <div style={{
+              width: 44, height: 44, borderRadius: 12, background: C.yellow,
+              display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22
+            }}>🛒</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 15, fontWeight: 800, color: C.blue }}>Лента</div>
+              <div style={{ fontSize: 12, color: C.sub }}>
+                {mode === "offline" ? "Касса №5 · Ленинский пр. 114" : "Интернет-магазин · заказ #38219"}
+              </div>
+            </div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: C.blue }}>{TOTAL_AMOUNT.toFixed(2)} ₽</div>
+          </div>
+
+          {mode === "offline" && (
+            <div style={{ padding: "16px 16px 4px" }}>
+              <StepBar step={step}/>
+            </div>
+          )}
+
+          {mode === "offline" && step === 0 && <Step1 onNext={() => setStep(1)}/>}
+          {mode === "offline" && step === 1 && (
+            <Step2 onNext={() => { setLoyaltyScanned(true); setStep(2); }}/>
+          )}
+          {mode === "offline" && step === 2 && (
+            <Step3 loyaltyScanned={loyaltyScanned} hasLentaPay={hasLentaPay}
+              onPay={(a, b, m) => setSuccess({ amount: a, bonuses: b, method: m })}
+              onIssue={() => setIssuanceOpen(true)}/>
+          )}
+          {mode === "online" && (
+            <Step3 loyaltyScanned={true} hasLentaPay={hasLentaPay}
+              onPay={(a, b, m) => setSuccess({ amount: a, bonuses: b, method: m })}
+              onIssue={() => setIssuanceOpen(true)}/>
+          )}
+        </div>
+
+        <div style={{ padding: "16px 0 40px", textAlign: "center" }}>
+          <span style={{ fontSize: 11, color: C.sub }}>🔒 Защищено · PCI DSS · Альфа-Банк</span>
+        </div>
+      </div>
+
+      {issuanceOpen && (
+        <CardIssuanceModal
+          clientType={clientType === "has_lenta" ? "n2b" : clientType}
+          onClose={() => setIssuanceOpen(false)}
+          onComplete={() => { setIssuanceOpen(false); setClientType("has_lenta"); }}
+        />
+      )}
+    </div>
+  );
+}
+
+ReactDOM.render(<App/>, document.getElementById('root'));
+</script>
+</body>
+</html>
