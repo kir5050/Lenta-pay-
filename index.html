@@ -299,7 +299,7 @@ function SuccessScreen({ amount, bonuses, method, onReset }) {
 }
 
 const FLOWS = {
-  n2b:      { route: ["consents", "phone", "otp", "form", "issued", "topup", "address", "slot", "delivered"], label: "N2B" },
+  n2b:      { route: ["consents", "phone", "otp", "form", "issued", "topup", "slot", "delivered"], label: "N2B" },
   existing: { route: ["consents", "phone", "otp", "select"],                                                  label: "Действующий" },
 };
 
@@ -786,70 +786,7 @@ function TopupScreen({ onNext, onSkip }) {
   );
 }
 
-function AddressScreen({ onNext }) {
-  const [street, setStreet] = useState("Москва, Ленинский проспект, 114");
-  const [apt, setApt] = useState("25");
-  return (
-    <div style={{ padding: "20px 16px" }}>
-      <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 6, color: C.blue, letterSpacing: "-0.4px" }}>Куда доставить?</div>
-      <div style={{ fontSize: 13, color: C.sub, marginBottom: 18 }}>Курьер привезёт пластиковую карту бесплатно</div>
-
-      <div style={{
-        padding: "10px 14px", borderRadius: 12, background: "#fff",
-        border: `2px solid ${C.blue}`, marginBottom: 10
-      }}>
-        <div style={{ fontSize: 10, color: C.sub, textTransform: "uppercase", letterSpacing: 1, fontWeight: 700 }}>Адрес</div>
-        <input
-          value={street}
-          onChange={e => setStreet(e.target.value)}
-          placeholder="Город, улица, дом"
-          style={{
-            width: "100%", border: "none", background: "transparent",
-            fontSize: 15, fontWeight: 600, color: C.blue, marginTop: 3,
-            outline: "none", fontFamily: "inherit"
-          }}
-        />
-      </div>
-
-      <div style={{
-        padding: "10px 14px", borderRadius: 12, background: "#fff",
-        border: `1px solid ${C.border}`, marginBottom: 10
-      }}>
-        <div style={{ fontSize: 10, color: C.sub, textTransform: "uppercase", letterSpacing: 1, fontWeight: 700 }}>Квартира / офис</div>
-        <input
-          value={apt}
-          onChange={e => setApt(e.target.value)}
-          placeholder="опционально"
-          style={{
-            width: "100%", border: "none", background: "transparent",
-            fontSize: 15, fontWeight: 600, color: C.blue, marginTop: 3,
-            outline: "none", fontFamily: "inherit"
-          }}
-        />
-      </div>
-
-      <div style={{
-        padding: "10px 14px", borderRadius: 12, background: C.bg, marginBottom: 14
-      }}>
-        <div style={{ fontSize: 10, color: C.sub, textTransform: "uppercase", letterSpacing: 1, fontWeight: 700 }}>Получатель</div>
-        <div style={{ fontSize: 14, fontWeight: 700, color: C.blue, marginTop: 2 }}>Иванов Алексей Сергеевич</div>
-      </div>
-
-      <div style={{
-        padding: "10px 14px", borderRadius: 12, background: C.yellowLight,
-        border: `1px solid ${C.yellowSoft}`, marginBottom: 18,
-        display: "flex", gap: 8, alignItems: "flex-start"
-      }}>
-        <span style={{ fontSize: 15 }}>📋</span>
-        <span style={{ fontSize: 12, color: C.blue, lineHeight: 1.5, fontWeight: 500 }}>
-          Для получения понадобится паспорт. Карта будет передана только владельцу
-        </span>
-      </div>
-
-      <PrimaryBtn label="Найти слоты доставки" onClick={onNext} disabled={!street.trim()}/>
-    </div>
-  );
-}
+function AddressScreen() { return null; }
 
 function SlotScreen({ onNext }) {
   const [sel, setSel] = useState(1);
@@ -896,8 +833,8 @@ function SlotScreen({ onNext }) {
             <div style={{ fontSize: 9, color: C.sub, marginTop: -1, fontWeight: 600 }}>{s.date}</div>
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: C.blue }}>{s.time}</div>
-            <div style={{ fontSize: 11, color: C.green, marginTop: 1, fontWeight: 700 }}>Бесплатно</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: C.blue }}>{s.time}</div>
+            <div style={{ fontSize: 11, color: C.sub, marginTop: 1 }}>Курьером, окно 4 часа</div>
           </div>
           {s.badge && (
             <span style={{
@@ -1006,7 +943,6 @@ function CardIssuanceModal({ clientType, onClose, onComplete }) {
     issued:    <IssuedScreen onNext={next}/>,
     select:    <SelectAlfaCardScreen onNext={next}/>,
     topup:     <TopupScreen onNext={next} onSkip={onComplete}/>,
-    address:   <AddressScreen onNext={next}/>,
     slot:      <SlotScreen onNext={next}/>,
     delivered: <DeliveredScreen onNext={onComplete}/>,
   };
