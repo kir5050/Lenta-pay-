@@ -5,19 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Лента Пэй — Чек-аут с Альфа-Банком</title>
 <meta name="description" content="Интерактивный прототип чек-аута Лента Пэй: оплата, BNPL, кредитный лимит и оформление карты через Альфа-Банк">
-
-<!-- Open Graph -->
 <meta property="og:title" content="Лента Пэй — Чек-аут с Альфа-Банком">
 <meta property="og:description" content="Интерактивный прототип чек-аута: оплата, рассрочка, кредитный лимит и оформление карты">
 <meta property="og:type" content="website">
-
-<!-- Favicon: yellow oval with blue Л -->
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><ellipse cx='16' cy='16' rx='15' ry='12' fill='%23FFCC00'/><text x='50%25' y='62%25' text-anchor='middle' fill='%23003C71' font-size='14' font-weight='800' font-family='Arial'>Л</text></svg>">
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{background:#F5F5F5;color:#003C71;-webkit-tap-highlight-color:transparent}
@@ -30,7 +24,6 @@ input:focus{outline:none}
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-thumb{background:#B8D0E6;border-radius:3px}
 </style>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
@@ -41,25 +34,12 @@ input:focus{outline:none}
 <script type="text/babel">
 const { useState, useEffect } = React;
 
-// ── Lenta brand palette ────────────────────────────────────────────────────────
 const C = {
-  yellow: "#FFCC00",
-  yellowDark: "#E6B800",
-  yellowSoft: "#FFF4C2",
-  yellowLight: "#FFFBEA",
-  blue: "#003C71",
-  blueDark: "#002347",
-  blueLight: "#E6EEF5",
-  blueMid: "#B8D0E6",
+  yellow: "#FFCC00", yellowDark: "#E6B800", yellowSoft: "#FFF4C2", yellowLight: "#FFFBEA",
+  blue: "#003C71", blueDark: "#002347", blueLight: "#E6EEF5", blueMid: "#B8D0E6",
   alfaRed: "#EF3124",
-  bg: "#F5F5F5",
-  card: "#FFFFFF",
-  text: "#003C71",
-  text2: "#1A1A1A",
-  sub: "#6B7785",
-  border: "#E5E8EB",
-  green: "#00A650",
-  greenBg: "#E6F7EE",
+  bg: "#F5F5F5", card: "#FFFFFF", text: "#003C71", sub: "#6B7785", border: "#E5E8EB",
+  green: "#00A650", greenBg: "#E6F7EE",
 };
 
 function LentaLogo({ size = 32 }) {
@@ -103,9 +83,25 @@ function AlfaCardSvg({ width = 60, last = "1234" }) {
   return (
     <svg width={width} height={h} viewBox="0 0 200 120" style={{ borderRadius: 8, display: "block" }}>
       <rect width="200" height="120" rx="8" fill="#0A0A0A"/>
-      <rect x="148" y="14" width="38" height="22" rx="4" fill={C.alfaRed} />
+      <rect x="148" y="14" width="38" height="22" rx="4" fill={C.alfaRed}/>
       <text x="167" y="29" fill="white" fontSize="12" fontWeight="800" textAnchor="middle">A</text>
       <text x="14" y="108" fill="rgba(255,255,255,0.85)" fontSize="11" fontFamily="monospace" letterSpacing="2">*{last}</text>
+    </svg>
+  );
+}
+
+function SbpLogo({ size = 32 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 100 100" style={{ display: "block" }}>
+      <defs>
+        <linearGradient id="sbpg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#1FB6FF"/>
+          <stop offset="50%" stopColor="#3D8EE6"/>
+          <stop offset="100%" stopColor="#7C5FE6"/>
+        </linearGradient>
+      </defs>
+      <circle cx="50" cy="50" r="48" fill="url(#sbpg)"/>
+      <text x="50" y="60" fill="#fff" fontWeight="800" fontSize="22" textAnchor="middle" fontFamily="Inter, sans-serif" letterSpacing="0.5">СБП</text>
     </svg>
   );
 }
@@ -189,7 +185,7 @@ function PrimaryBtn({ label, sublabel, onClick, loading, secondary, disabled }) 
       fontSize: 15, fontWeight: 800,
       display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
       transition: "all .18s", fontFamily: "inherit", letterSpacing: "0.2px",
-      boxShadow: secondary ? `inset 0 0 0 1.5px ${C.blue}` : disabled ? "none" : "0 4px 12px rgba(255,204,0,0.35)",
+      boxShadow: secondary ? `inset 0 0 0 1.5px ${C.blue}` : disabled ? "none" : "0 4px 12px rgba(255,204,0,0.35)"
     }}>
       {loading ? "Обработка…" : label}
       {sublabel && !loading && <span style={{ fontWeight: 500, fontSize: 13, opacity: 0.75 }}>· {sublabel}</span>}
@@ -250,9 +246,7 @@ function StepBar({ step }) {
               color: i < step ? "#fff" : i === step ? C.blue : C.sub,
               fontSize: 12, fontWeight: 800, transition: "all .3s",
               boxShadow: i === step ? "0 0 0 4px rgba(255,204,0,0.25)" : "none"
-            }}>
-              {i < step ? <CheckIcon size={13}/> : i + 1}
-            </div>
+            }}>{i < step ? <CheckIcon size={13}/> : i + 1}</div>
             <div style={{ fontSize: 10, color: i === step ? C.blue : C.sub, fontWeight: i === step ? 700 : 500, whiteSpace: "nowrap" }}>{s}</div>
           </div>
           {i < steps.length - 1 && (
@@ -305,15 +299,16 @@ function SuccessScreen({ amount, bonuses, method, onReset }) {
 }
 
 const FLOWS = {
-  n2b:      { route: ["consents", "phone", "otp", "form", "issued"], label: "N2B" },
-  existing: { route: ["consents", "phone", "otp", "select"],         label: "Действующий" },
+  n2b:      { route: ["consents", "phone", "otp", "form", "issued", "topup", "address", "slot", "delivered"], label: "N2B" },
+  existing: { route: ["consents", "phone", "otp", "select"],                                                  label: "Действующий" },
 };
 
 function IssueHeader({ onClose, label }) {
   return (
     <div style={{
       padding: "14px 16px 12px", borderBottom: `1px solid ${C.border}`,
-      background: "#fff", display: "flex", alignItems: "center", gap: 10
+      background: "#fff", display: "flex", alignItems: "center", gap: 10,
+      flexShrink: 0
     }}>
       <button onClick={onClose} style={{
         width: 32, height: 32, borderRadius: 10, border: "none",
@@ -341,7 +336,7 @@ function IssueHeader({ onClose, label }) {
 
 function IssueProgress({ idx, total }) {
   return (
-    <div style={{ display: "flex", gap: 4, padding: "10px 16px 4px" }}>
+    <div style={{ display: "flex", gap: 4, padding: "10px 16px 4px", flexShrink: 0 }}>
       {Array.from({ length: total }).map((_, i) => (
         <div key={i} style={{
           flex: 1, height: 3, borderRadius: 2,
@@ -362,9 +357,7 @@ function ConsentsScreen({ onNext, clientType }) {
       }}>
         <span style={{ fontSize: 30 }}>🛒</span>
       </div>
-      <div style={{ fontSize: 24, fontWeight: 800, lineHeight: 1.15, marginBottom: 8, color: C.blue, letterSpacing: "-0.5px" }}>
-        Платите Лента Пэй
-      </div>
+      <div style={{ fontSize: 24, fontWeight: 800, lineHeight: 1.15, marginBottom: 8, color: C.blue, letterSpacing: "-0.5px" }}>Платите Лента Пэй</div>
       <div style={{ fontSize: 13, color: C.sub, marginBottom: 16, lineHeight: 1.5 }}>
         {clientType === "existing"
           ? "Привяжите вашу карту Альфа-Банка и платите со скидкой"
@@ -526,13 +519,13 @@ function IssuedScreen({ onNext }) {
         Карта готова к оплате. Все данные переданы на чек-аут автоматически.
       </div>
       <div style={{
-        padding: 14, background: C.blueLight, borderRadius: 16, marginBottom: 16,
+        padding: 14, background: C.blueLight, borderRadius: 16, marginBottom: 12,
         display: "flex", alignItems: "center", gap: 12
       }}>
         <LentaCardSvg width={92}/>
         <div style={{ textAlign: "left" }}>
           <div style={{ fontSize: 14, fontWeight: 800, color: C.blue }}>Лента Пэй</div>
-          <div style={{ fontSize: 11, color: C.sub, marginTop: 2 }}>*7741 · МИР</div>
+          <div style={{ fontSize: 11, color: C.sub, marginTop: 2 }}>*7741 · МИР · Баланс 0 ₽</div>
           <div style={{
             fontSize: 10, fontWeight: 800, color: C.blue, marginTop: 5,
             display: "inline-block", padding: "3px 8px",
@@ -540,7 +533,17 @@ function IssuedScreen({ onNext }) {
           }}>✓ АКТИВНА</div>
         </div>
       </div>
-      <PrimaryBtn label="Перейти к оплате" onClick={onNext}/>
+      <div style={{
+        padding: "10px 14px", borderRadius: 12, marginBottom: 16,
+        background: C.yellowLight, border: `1px solid ${C.yellowSoft}`,
+        display: "flex", gap: 8, alignItems: "flex-start", textAlign: "left"
+      }}>
+        <span style={{ fontSize: 15 }}>💡</span>
+        <span style={{ fontSize: 12, color: C.blue, lineHeight: 1.5, fontWeight: 500 }}>
+          Карта выпущена с нулевым балансом. Пополните её через СБП, чтобы оплатить покупку
+        </span>
+      </div>
+      <PrimaryBtn label="Пополнить карту" onClick={onNext}/>
     </div>
   );
 }
@@ -586,21 +589,426 @@ function SelectAlfaCardScreen({ onNext }) {
   );
 }
 
+function TopupScreen({ onNext, onSkip }) {
+  const [bank, setBank] = useState(null);
+  const [stage, setStage] = useState("select");
+  const [amount, setAmount] = useState(1000);
+
+  const banks = [
+    { id: "sber",  name: "Сбербанк",    color: "#21A038", textColor: "#fff",    letter: "С" },
+    { id: "tbank", name: "Т-Банк",      color: "#FFDD2D", textColor: "#000",    letter: "Т" },
+    { id: "vtb",   name: "ВТБ",         color: "#0A2973", textColor: "#fff",    letter: "В" },
+    { id: "raif",  name: "Райффайзен",  color: "#FEE600", textColor: "#003C71", letter: "R" },
+    { id: "other", name: "Другой банк", color: "#6B7785", textColor: "#fff",    letter: "+" },
+  ];
+
+  const selectedBank = banks.find(b => b.id === bank);
+
+  const handleConfirm = () => {
+    if (!bank) return;
+    setStage("processing");
+    setTimeout(() => setStage("done"), 1500);
+  };
+
+  if (stage === "done") {
+    return (
+      <div style={{ padding: "30px 16px 24px", textAlign: "center" }}>
+        <div style={{
+          width: 76, height: 76, borderRadius: "50%", background: C.yellow,
+          margin: "0 auto 14px", display: "flex", alignItems: "center", justifyContent: "center",
+          animation: "pop .4s ease", boxShadow: "0 6px 18px rgba(255,204,0,0.4)"
+        }}>
+          <CheckIcon size={36} color={C.blue}/>
+        </div>
+        <div style={{ fontSize: 22, fontWeight: 800, color: C.blue, marginBottom: 6, letterSpacing: "-0.4px" }}>Карта пополнена!</div>
+        <div style={{ fontSize: 13, color: C.sub, marginBottom: 22 }}>
+          <span style={{ fontWeight: 700, color: C.blue }}>{amount.toLocaleString("ru-RU")} ₽</span> зачислены на *7741
+        </div>
+
+        <div style={{
+          padding: "14px 14px", borderRadius: 14, background: C.blueLight,
+          textAlign: "left", marginBottom: 12,
+          display: "flex", gap: 12, alignItems: "center"
+        }}>
+          <div style={{
+            width: 44, height: 44, borderRadius: 12, background: C.yellow,
+            display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0
+          }}>
+            <span style={{ fontSize: 22 }}>💳</span>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13, fontWeight: 800, color: C.blue }}>Закажите пластик</div>
+            <div style={{ fontSize: 11, color: C.sub, marginTop: 2, lineHeight: 1.4 }}>
+              Бесплатная доставка курьером
+            </div>
+          </div>
+        </div>
+
+        <PrimaryBtn label="Заказать пластиковую карту" onClick={onNext}/>
+        <button onClick={onSkip} style={{
+          width: "100%", padding: "12px 0", marginTop: 8,
+          background: "transparent", border: "none",
+          color: C.sub, fontSize: 13, fontWeight: 600,
+          cursor: "pointer", fontFamily: "inherit"
+        }}>Пропустить → перейти к оплате</button>
+      </div>
+    );
+  }
+
+  if (stage === "processing") {
+    return (
+      <div style={{ padding: "36px 16px", textAlign: "center" }}>
+        <div style={{ position: "relative", width: 84, height: 84, margin: "0 auto 18px" }}>
+          <SbpLogo size={84}/>
+          <div style={{
+            position: "absolute", inset: -6,
+            border: `3px solid ${C.yellow}`, borderRadius: "50%",
+            borderTopColor: "transparent",
+            animation: "spin 1s linear infinite"
+          }}/>
+        </div>
+        <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+        <div style={{ fontSize: 18, fontWeight: 800, color: C.blue, marginBottom: 8, letterSpacing: "-0.3px" }}>Подтверждение через СБП</div>
+        <div style={{ fontSize: 13, color: C.sub, lineHeight: 1.5 }}>
+          Открываем приложение<br/>
+          <span style={{ fontWeight: 700, color: C.blue }}>«{selectedBank?.name}»</span>
+        </div>
+        <div style={{
+          marginTop: 18, padding: "8px 14px", borderRadius: 10,
+          background: C.blueLight, fontSize: 11, color: C.blue, fontWeight: 600,
+          display: "inline-block"
+        }}>Не закрывайте окно</div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ padding: "20px 16px" }}>
+      <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 6, color: C.blue, letterSpacing: "-0.4px" }}>Пополните карту</div>
+      <div style={{ fontSize: 13, color: C.sub, marginBottom: 16 }}>Перевод через СБП с карты другого банка</div>
+
+      <div style={{
+        padding: "11px 14px", borderRadius: 12, background: C.blueLight,
+        display: "flex", alignItems: "center", gap: 10, marginBottom: 14
+      }}>
+        <LentaCardSvg width={58}/>
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 800, color: C.blue }}>Лента Пэй *7741</div>
+          <div style={{ fontSize: 11, color: C.sub, marginTop: 2 }}>Баланс: 0 ₽</div>
+        </div>
+      </div>
+
+      <div style={{
+        padding: "12px 14px", borderRadius: 12, marginBottom: 12,
+        background: "#fff", border: `2px solid ${C.blue}`
+      }}>
+        <div style={{ fontSize: 10, color: C.sub, textTransform: "uppercase", letterSpacing: 1, fontWeight: 700, marginBottom: 4 }}>Сумма пополнения</div>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+          <input
+            type="number"
+            value={amount}
+            onChange={e => setAmount(Math.max(100, Math.min(15000, parseInt(e.target.value) || 0)))}
+            style={{
+              flex: 1, border: "none", background: "transparent",
+              fontSize: 24, fontWeight: 800, color: C.blue, outline: "none",
+              fontFamily: "inherit", minWidth: 0
+            }}
+          />
+          <span style={{ fontSize: 20, color: C.blue, fontWeight: 800 }}>₽</span>
+        </div>
+        <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
+          {[500, 1000, 5000, 10000].map(s => (
+            <button key={s} onClick={() => setAmount(s)} style={{
+              flex: 1, padding: "6px 0", borderRadius: 8, border: "none",
+              background: amount === s ? C.yellow : C.bg,
+              color: C.blue, fontSize: 12, fontWeight: 700, cursor: "pointer",
+              fontFamily: "inherit", transition: "all .15s"
+            }}>{s.toLocaleString("ru-RU")}</button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{
+        padding: "10px 12px", borderRadius: 12, marginBottom: 16,
+        background: "linear-gradient(135deg, rgba(31,182,255,0.08), rgba(124,95,230,0.10))",
+        border: "1px solid rgba(124,95,230,0.22)",
+        display: "flex", alignItems: "center", gap: 10
+      }}>
+        <SbpLogo size={34}/>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 12, fontWeight: 800, color: C.blue }}>Система Быстрых Платежей</div>
+          <div style={{ fontSize: 11, color: C.sub, marginTop: 1 }}>Без комиссии · до 15 000 ₽ за операцию · мгновенно</div>
+        </div>
+      </div>
+
+      <div style={{ fontSize: 11, fontWeight: 800, color: C.sub, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 8 }}>
+        Откуда перевести
+      </div>
+
+      {banks.map(b => (
+        <div key={b.id} onClick={() => setBank(b.id)} style={{
+          display: "flex", alignItems: "center", gap: 12,
+          padding: "10px 12px", marginBottom: 6, cursor: "pointer",
+          background: bank === b.id ? C.yellowLight : "#fff",
+          borderRadius: 12,
+          border: `2px solid ${bank === b.id ? C.yellow : C.border}`,
+          transition: "all .15s"
+        }}>
+          <div style={{
+            width: 38, height: 38, borderRadius: "50%", background: b.color,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            color: b.textColor, fontSize: 16, fontWeight: 800, flexShrink: 0
+          }}>{b.letter}</div>
+          <div style={{ flex: 1, fontSize: 13, fontWeight: 700, color: C.blue }}>{b.name}</div>
+          <div style={{
+            width: 20, height: 20, borderRadius: "50%",
+            border: `2px solid ${bank === b.id ? C.blue : "#CCC"}`,
+            background: bank === b.id ? C.blue : "transparent",
+            display: "flex", alignItems: "center", justifyContent: "center"
+          }}>
+            {bank === b.id && <CheckIcon size={10}/>}
+          </div>
+        </div>
+      ))}
+
+      <div style={{ marginTop: 14 }}>
+        <PrimaryBtn
+          label={bank ? `Перейти в «${selectedBank?.name}»` : "Выберите банк"}
+          onClick={handleConfirm}
+          disabled={!bank}
+        />
+      </div>
+
+      <div style={{ fontSize: 10, color: C.sub, marginTop: 10, textAlign: "center", lineHeight: 1.5 }}>
+        Для упрощённо идентифицированного клиента доступно только пополнение по СБП C2B (лимит 15 000 ₽ на операцию)
+      </div>
+    </div>
+  );
+}
+
+function AddressScreen({ onNext }) {
+  const [street, setStreet] = useState("Москва, Ленинский проспект, 114");
+  const [apt, setApt] = useState("25");
+  return (
+    <div style={{ padding: "20px 16px" }}>
+      <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 6, color: C.blue, letterSpacing: "-0.4px" }}>Куда доставить?</div>
+      <div style={{ fontSize: 13, color: C.sub, marginBottom: 18 }}>Курьер привезёт пластиковую карту бесплатно</div>
+
+      <div style={{
+        padding: "10px 14px", borderRadius: 12, background: "#fff",
+        border: `2px solid ${C.blue}`, marginBottom: 10
+      }}>
+        <div style={{ fontSize: 10, color: C.sub, textTransform: "uppercase", letterSpacing: 1, fontWeight: 700 }}>Адрес</div>
+        <input
+          value={street}
+          onChange={e => setStreet(e.target.value)}
+          placeholder="Город, улица, дом"
+          style={{
+            width: "100%", border: "none", background: "transparent",
+            fontSize: 15, fontWeight: 600, color: C.blue, marginTop: 3,
+            outline: "none", fontFamily: "inherit"
+          }}
+        />
+      </div>
+
+      <div style={{
+        padding: "10px 14px", borderRadius: 12, background: "#fff",
+        border: `1px solid ${C.border}`, marginBottom: 10
+      }}>
+        <div style={{ fontSize: 10, color: C.sub, textTransform: "uppercase", letterSpacing: 1, fontWeight: 700 }}>Квартира / офис</div>
+        <input
+          value={apt}
+          onChange={e => setApt(e.target.value)}
+          placeholder="опционально"
+          style={{
+            width: "100%", border: "none", background: "transparent",
+            fontSize: 15, fontWeight: 600, color: C.blue, marginTop: 3,
+            outline: "none", fontFamily: "inherit"
+          }}
+        />
+      </div>
+
+      <div style={{
+        padding: "10px 14px", borderRadius: 12, background: C.bg, marginBottom: 14
+      }}>
+        <div style={{ fontSize: 10, color: C.sub, textTransform: "uppercase", letterSpacing: 1, fontWeight: 700 }}>Получатель</div>
+        <div style={{ fontSize: 14, fontWeight: 700, color: C.blue, marginTop: 2 }}>Иванов Алексей Сергеевич</div>
+      </div>
+
+      <div style={{
+        padding: "10px 14px", borderRadius: 12, background: C.yellowLight,
+        border: `1px solid ${C.yellowSoft}`, marginBottom: 18,
+        display: "flex", gap: 8, alignItems: "flex-start"
+      }}>
+        <span style={{ fontSize: 15 }}>📋</span>
+        <span style={{ fontSize: 12, color: C.blue, lineHeight: 1.5, fontWeight: 500 }}>
+          Для получения понадобится паспорт. Карта будет передана только владельцу
+        </span>
+      </div>
+
+      <PrimaryBtn label="Найти слоты доставки" onClick={onNext} disabled={!street.trim()}/>
+    </div>
+  );
+}
+
+function SlotScreen({ onNext }) {
+  const [sel, setSel] = useState(1);
+
+  const slots = [
+    { id: 0, label: "Сегодня",     date: "11 мая",  time: "18:00 – 22:00" },
+    { id: 1, label: "Завтра",      date: "12 мая",  time: "09:00 – 13:00", badge: "Удобный" },
+    { id: 2, label: "Завтра",      date: "12 мая",  time: "14:00 – 18:00" },
+    { id: 3, label: "Завтра",      date: "12 мая",  time: "18:00 – 22:00" },
+    { id: 4, label: "Понедельник", date: "13 мая",  time: "09:00 – 13:00" },
+  ];
+
+  const selected = slots[sel];
+
+  return (
+    <div style={{ padding: "20px 16px" }}>
+      <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 6, color: C.blue, letterSpacing: "-0.4px" }}>Выберите время</div>
+      <div style={{ fontSize: 13, color: C.sub, marginBottom: 14 }}>Доступные слоты курьерской доставки</div>
+
+      <div style={{
+        padding: "9px 12px", borderRadius: 10, background: C.bg,
+        marginBottom: 14, display: "flex", gap: 8, alignItems: "center"
+      }}>
+        <span style={{ fontSize: 14 }}>📍</span>
+        <span style={{ fontSize: 12, color: C.sub, flex: 1 }}>Москва, Ленинский проспект, 114, кв. 25</span>
+      </div>
+
+      {slots.map(s => (
+        <div key={s.id} onClick={() => setSel(s.id)} style={{
+          display: "flex", alignItems: "center", gap: 12,
+          padding: "10px 12px", marginBottom: 6, cursor: "pointer",
+          background: sel === s.id ? C.yellowLight : "#fff",
+          borderRadius: 12,
+          border: `2px solid ${sel === s.id ? C.yellow : C.border}`,
+          transition: "all .15s"
+        }}>
+          <div style={{
+            width: 52, height: 48, borderRadius: 10,
+            background: sel === s.id ? C.yellow : C.blueLight,
+            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+            flexShrink: 0
+          }}>
+            <div style={{ fontSize: 9, fontWeight: 800, color: C.blue, textTransform: "uppercase", letterSpacing: 0.2 }}>{s.label.length > 8 ? s.label.slice(0,7)+"…" : s.label}</div>
+            <div style={{ fontSize: 9, color: C.sub, marginTop: -1, fontWeight: 600 }}>{s.date}</div>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: C.blue }}>{s.time}</div>
+            <div style={{ fontSize: 11, color: C.green, marginTop: 1, fontWeight: 700 }}>Бесплатно</div>
+          </div>
+          {s.badge && (
+            <span style={{
+              fontSize: 9, fontWeight: 800, padding: "3px 7px", borderRadius: 6,
+              background: C.yellow, color: C.blue, marginRight: 6
+            }}>{s.badge}</span>
+          )}
+          <div style={{
+            width: 20, height: 20, borderRadius: "50%",
+            border: `2px solid ${sel === s.id ? C.blue : "#CCC"}`,
+            background: sel === s.id ? C.blue : "transparent",
+            display: "flex", alignItems: "center", justifyContent: "center"
+          }}>
+            {sel === s.id && <CheckIcon size={10}/>}
+          </div>
+        </div>
+      ))}
+
+      <div style={{ marginTop: 14 }}>
+        <PrimaryBtn label={`Заказать на ${selected.label.toLowerCase()}, ${selected.time.split(" ")[0]}`} onClick={onNext}/>
+      </div>
+
+      <div style={{ fontSize: 10, color: C.sub, marginTop: 10, textAlign: "center" }}>
+        Слоты могут измениться в зависимости от загрузки курьеров
+      </div>
+    </div>
+  );
+}
+
+function DeliveredScreen({ onNext }) {
+  return (
+    <div style={{ padding: "30px 16px 20px", textAlign: "center" }}>
+      <div style={{
+        width: 80, height: 80, borderRadius: "50%", background: C.yellow,
+        margin: "0 auto 18px", display: "flex", alignItems: "center", justifyContent: "center",
+        animation: "pop .4s ease", boxShadow: "0 8px 22px rgba(255,204,0,0.45)"
+      }}>
+        <CheckIcon size={38} color={C.blue}/>
+      </div>
+      <div style={{ fontSize: 22, fontWeight: 800, color: C.blue, marginBottom: 6, letterSpacing: "-0.4px" }}>Карта заказана!</div>
+      <div style={{ fontSize: 13, color: C.sub, marginBottom: 18 }}>Пластиковая Лента Пэй приедет с курьером</div>
+
+      <div style={{
+        padding: 14, borderRadius: 16, background: C.blueLight,
+        marginBottom: 12, textAlign: "left"
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+          <LentaCardSvg width={84}/>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 800, color: C.blue }}>Лента Пэй</div>
+            <div style={{ fontSize: 11, color: C.sub, marginTop: 2 }}>*7741 · Пластик</div>
+            <div style={{
+              fontSize: 10, fontWeight: 800, color: C.blue, marginTop: 5,
+              display: "inline-block", padding: "3px 8px",
+              background: C.yellow, borderRadius: 5
+            }}>📦 В ОБРАБОТКЕ</div>
+          </div>
+        </div>
+
+        <div style={{ borderTop: `1px solid ${C.blueMid}`, paddingTop: 10 }}>
+          {[
+            { l: "📍 Адрес",     v: "Ленинский пр., 114, кв. 25" },
+            { l: "🕐 Доставка",  v: "Завтра, 09:00 – 13:00" },
+            { l: "🆔 Документы", v: "Паспорт" },
+          ].map((r, i) => (
+            <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: 12, gap: 12 }}>
+              <span style={{ color: C.sub, fontWeight: 500, flexShrink: 0 }}>{r.l}</span>
+              <span style={{ color: C.blue, fontWeight: 700, textAlign: "right" }}>{r.v}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{
+        padding: "10px 14px", borderRadius: 12, marginBottom: 16,
+        background: C.yellowLight, border: `1px solid ${C.yellowSoft}`,
+        display: "flex", gap: 8, alignItems: "flex-start"
+      }}>
+        <span style={{ fontSize: 15 }}>💡</span>
+        <span style={{ fontSize: 11, color: C.blue, lineHeight: 1.5, fontWeight: 500, textAlign: "left" }}>
+          Цифровая карта уже работает — можно оплачивать прямо сейчас. Пластик понадобится для покупок без NFC
+        </span>
+      </div>
+
+      <PrimaryBtn label="Перейти к оплате" onClick={onNext}/>
+    </div>
+  );
+}
+
 function CardIssuanceModal({ clientType, onClose, onComplete }) {
   const [idx, setIdx] = useState(0);
   const flow = FLOWS[clientType] || FLOWS.n2b;
   const route = flow.route;
   const cur = route[idx];
 
-  const next = () => { if (idx < route.length - 1) setIdx(idx + 1); else onComplete(); };
+  const next = () => {
+    if (idx < route.length - 1) setIdx(idx + 1);
+    else onComplete();
+  };
 
   const screens = {
-    consents: <ConsentsScreen onNext={next} clientType={clientType}/>,
-    phone:    <PhoneScreen onNext={next}/>,
-    otp:      <OtpScreen onNext={next}/>,
-    form:     <FormScreen onNext={next}/>,
-    issued:   <IssuedScreen onNext={next}/>,
-    select:   <SelectAlfaCardScreen onNext={next}/>,
+    consents:  <ConsentsScreen onNext={next} clientType={clientType}/>,
+    phone:     <PhoneScreen onNext={next}/>,
+    otp:       <OtpScreen onNext={next}/>,
+    form:      <FormScreen onNext={next}/>,
+    issued:    <IssuedScreen onNext={next}/>,
+    select:    <SelectAlfaCardScreen onNext={next}/>,
+    topup:     <TopupScreen onNext={next} onSkip={onComplete}/>,
+    address:   <AddressScreen onNext={next}/>,
+    slot:      <SlotScreen onNext={next}/>,
+    delivered: <DeliveredScreen onNext={onComplete}/>,
   };
 
   return (
@@ -612,13 +1020,23 @@ function CardIssuanceModal({ clientType, onClose, onComplete }) {
       <style>{`@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}`}</style>
       <div style={{
         width: "100%", maxWidth: 400, background: "#fff",
-        borderRadius: "22px 22px 0 0", maxHeight: "92vh", overflow: "hidden",
+        borderRadius: "22px 22px 0 0",
+        height: "92vh",
         animation: "slideUp .35s cubic-bezier(.2,.8,.2,1)",
         display: "flex", flexDirection: "column"
       }}>
         <IssueHeader onClose={onClose} label={flow.label}/>
         <IssueProgress idx={idx} total={route.length}/>
-        <div style={{ flex: 1, overflow: "auto" }}>{screens[cur]}</div>
+        <div style={{
+          flex: "1 1 0", minHeight: 0,
+          overflowY: "auto", WebkitOverflowScrolling: "touch"
+        }}>
+          {screens[cur] || (
+            <div style={{ padding: "40px 16px", textAlign: "center", color: C.sub }}>
+              Шаг «{cur}» не найден
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
